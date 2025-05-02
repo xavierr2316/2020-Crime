@@ -1,0 +1,51 @@
+library(rdflib)
+library(dplyr)
+
+rdf_file_path <- "path_to_your_rdf_file.rdf"
+rdf_graph <- rdf_parse(rdf_file_path)
+
+rdf_data <- rdf_graph %>%
+  rdf_subjects() %>%
+  rdf_ppredicate() %>%
+  rdf_object() %>%
+  bind_cols()
+
+  rdf_data$vict_age <- as.numeric(rdf_data$vict_age)
+rdf_data$date_rptd <- as.Date(rdf_data$date_rptd)
+
+descriptive_stats <- summary(rdf_data$vict_age)
+
+rdf_data$year <- format(rdf_data$date_rptd, "%Y")
+crimes_per_year <- table(rdf_data$year)
+
+victim_age_2020 <- rdf_data$vict_age[rdf_data$year == 2020]
+victim_age_2023 <- rdf_data$vict_age[rdf_data$year == 2023]
+
+t_test_result <- t.test(victim_age_2020, victim_age_2023, na.rm = TRUE)
+
+# Display results
+descriptive_stats
+crimes_per_year
+t_test_result
+
+print(descriptive_stats)
+
+print(crimes_per_year)
+
+print(t_test_result)
+
+Questions
+
+1.) What is the average victim age for crimes reported in 2020?
+The average victim age for crimes reported in 2020 is approximately 28.99 years
+
+2.) What is the distribution of victim ages for crimes reported in 2020?
+  library(ggplot2)
+ggplot(rdf_data[rdf_data$year == 2020, ], aes(x = vict_age)) +
+     geom_histogram(binwidth = 5, fill = "blue", color = "black", alpha = 0.7) +
+     labs(title = "Distribution of Victim Ages for Crimes Reported in 2020",
+          x = "Victim Age",
+          y = "Frequency") +
+     theme_minimal()
+
+     
